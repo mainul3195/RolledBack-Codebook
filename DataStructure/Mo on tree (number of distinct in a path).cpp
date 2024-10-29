@@ -1,19 +1,6 @@
 const int mod = 1e9 + 7, LG = 18;
 const int N = 2e5 + 6;
 const int BLOCK_SIZE = 450;
-struct Query {
-    int l, r, idx, c, lc, type;
-    bool operator<(const Query &y) const {
-        // Current query x is being compared with other query y
-        int x_block = l / BLOCK_SIZE;
-        int y_block = y.l / BLOCK_SIZE;
-        // If x and y both lie in the same block, sort in non decreasing order of endpoint
-        if (x_block == y_block)
-            return r < y.r;
-        // x and y lie in different blocks
-        return x_block < y_block;
-    }
-};
 int a[N];
 vector<int>node[N];
 int starttime[N], endtime[N];
@@ -59,7 +46,6 @@ void operation(int id){
     freq[curnode] ^= 1;
 }
 void Solve(){
-
     int n, q;
     while (cin >> n >> q){
         set<ll>st;
@@ -121,19 +107,8 @@ void Solve(){
             if (type == 1)
                 operation(starttime[lc]);
         }
-        for (int i = 1 ; i <= q ; i++)
-        {
+        for (int i = 1 ; i <= q ; i++) {
             cout << ans[i] << endl;
-        }
-        //cout << endl;
-        for (int i = 1 ; i <= n + n + 4 ; i++){
-            starttime[i] = endtime[i] = 0;
-            timer = 1;
-            freq[i] = 0;
-            node[i].clear();
-            colour[i] = 0;
-            res = 0;
-            ft[i] = 0;
         }
     }
 }

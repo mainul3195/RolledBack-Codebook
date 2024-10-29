@@ -1,10 +1,3 @@
-/*
--> diff(v) = len(v) - len(link(v))
--> series link will lead from the vertex v to the vertex u corresponding
-   to the maximum suffix palindrome of v which satisfies diff(v) != diff(u)
--> path within series links to the root contains only O(log n) vertices
--> cnt contains the number of palindromic suffixes of the node
-*/
 struct PalindromicTree {
   struct node {
     int nxt[26], len, st, en, link, diff, slink, cnt, oc;
@@ -98,11 +91,5 @@ int32_t main() {
   long long ans = 0;
   for (int i = 3; i <= t.sz; i++) ans += t.t[i].oc;
   cout << ans << '\n';
-  return 0;
-  //auto ans = t.minimum_partition();
-  // for (int i = 1; i <= s.size(); i++) {
-  //     cout << (ans[i][1] == 1e9 ? -1 : ans[i][1]) << ' ';
-  //     cout << (ans[i][0] == 1e9 ? -2 : ans[i][0]) << '\n';
-  // }
   return 0;
 }

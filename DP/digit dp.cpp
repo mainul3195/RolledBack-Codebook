@@ -1,7 +1,6 @@
 const int N=20;
 int a[N];
 ll dp[N][11][2][2];   // digit dp te amar number generate hoy emne : 0, 01, 02, 03, 04, 05.....066,0667
- 
 ll getsum(int pos, int dig,  int n, bool ok, bool other){
        if(pos>n){
        	   return 1;
@@ -26,7 +25,6 @@ ll getsum(int pos, int dig,  int n, bool ok, bool other){
        return R = res;
 }
 void Solve(){
-        
         string l, r;
         cin>>l>>r;
         int n = r.size();
@@ -36,19 +34,4 @@ void Solve(){
         }  
         memset(dp, -1, sizeof(dp));
         ll sumr = getsum(1, -1 , n, 0, 0);  
-
-        n = l.size();
-        l = '*' + l;
-        for(int i=0 ; i<=n ; i++)
-        	a[i] = l[i]-'0';
-
-        memset(dp, -1, sizeof(dp));
-        ll suml = getsum(1, -1, n, 0, 0);
-        bool ok=1;
-        for(int i=2 ; i<=n ; i++)
-        	if(l[i-1]==l[i])
-                ok=0;
- 
-        cout<<sumr - suml + ok<<endl;
- 
 }

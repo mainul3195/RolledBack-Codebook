@@ -293,401 +293,125 @@ bool is_convex(vector<PT> &p){bool s[3];s[0] = s[1] = s[2] = 0;int n = p.size();
 s[sign(cross(p[j] - p[i], p[k] - p[i])) + 1] = 1;if (s[0] && s[2])return 0;}return 1;}
 // -1 if strictly inside, 0 if on the polygon, 1 if strictly outside
 // it must be strictly convex, otherwise make it strictly convex first
-int is_point_in_convex(vector<PT> &p, const PT &x)
-{ // O(log n)
-    int n = p.size();
-    assert(n >= 3);
-    int a = orientation(p[0], p[1], x), b = orientation(p[0], p[n - 1], x);
-    if (a < 0 || b > 0)
-        return 1;
-    int l = 1, r = n - 1;
-    while (l + 1 < r)
-    {
-        int mid = l + r >> 1;
-        if (orientation(p[0], p[mid], x) >= 0)
-            l = mid;
-        else
-            r = mid;
-    }
-    int k = orientation(p[l], p[r], x);
-    if (k <= 0)
-        return -k;
-    if (l == 1 && a == 0)
-        return 0;
-    if (r == n - 1 && b == 0)
-        return 0;
-    return -1;
-}
-bool is_point_on_polygon(vector<PT> &p, const PT &z)
-{
-    int n = p.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (is_point_on_seg(p[i], p[(i + 1) % n], z))
-            return 1;
-    }
-    return 0;
-}
+int is_point_in_convex(vector<PT> &p, const PT &x){ // O(log n)int n = p.size();assert(n >= 3);
+int a = orientation(p[0], p[1], x), b = orientation(p[0], p[n - 1], x);if (a < 0 || b > 0)return 1;int l = 1, r = n - 1;while (l + 1 < r){
+int mid = l + r >> 1;if (orientation(p[0], p[mid], x) >= 0)l = mid;elser = mid;}int k = orientation(p[l], p[r], x);if (k <= 0)return -k;
+if (l == 1 && a == 0)return 0;if (r == n - 1 && b == 0)return 0;return -1;}
+bool is_point_on_polygon(vector<PT> &p, const PT &z){int n = p.size();
+for (int i = 0; i < n; i++){if (is_point_on_seg(p[i], p[(i + 1) % n], z))return 1;}return 0;}
 // returns 1e9 if the point is on the polygon
-int winding_number(vector<PT> &p, const PT &z)
-{ // O(n)
-    if (is_point_on_polygon(p, z))
-        return 1e9;
-    int n = p.size(), ans = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        int j = (i + 1) % n;
-        bool below = p[i].y < z.y;
-        if (below != (p[j].y < z.y))
-        {
-            auto orient = orientation(z, p[j], p[i]);
-            if (orient == 0)
-                return 0;
-            if (below == (orient > 0))
-                ans += below ? 1 : -1;
-        }
-    }
-    return ans;
-}
+int winding_number(vector<PT> &p, const PT &z){ // O(n)
+if (is_point_on_polygon(p, z))return 1e9;
+int n = p.size(), ans = 0;
+for (int i = 0; i < n; ++i){int j = (i + 1) % n;bool below = p[i].y < z.y;
+if (below != (p[j].y < z.y)){
+auto orient = orientation(z, p[j], p[i]);
+if (orient == 0)return 0;
+if (below == (orient > 0))ans += below ? 1 : -1;}}return ans;}
 // -1 if strictly inside, 0 if on the polygon, 1 if strictly outside
-int is_point_in_polygon(vector<PT> &p, const PT &z)
-{ // O(n)
-    int k = winding_number(p, z);
-    return k == 1e9 ? 0 : k == 0 ? 1
-                                 : -1;
-}
+int is_point_in_polygon(vector<PT> &p, const PT &z){ // O(n)
+int k = winding_number(p, z);return k == 1e9 ? 0 : k == 0 ? 1: -1;}
 // id of the vertex having maximum dot product with z
 // polygon must need to be convex
 // top - upper right vertex
 // for minimum dot product negate z and return -dot(z, p[id])
-int extreme_vertex(vector<PT> &p, const PT &z, const int top)
-{ // O(log n)
-    int n = p.size();
-    if (n == 1)
-        return 0;
-    double ans = dot(p[0], z);
-    int id = 0;
-    if (dot(p[top], z) > ans)
-        ans = dot(p[top], z), id = top;
-    int l = 1, r = top - 1;
-    while (l < r)
-    {
-        int mid = l + r >> 1;
-        if (dot(p[mid + 1], z) >= dot(p[mid], z))
-            l = mid + 1;
-        else
-            r = mid;
-    }
-    if (dot(p[l], z) > ans)
-        ans = dot(p[l], z), id = l;
-    l = top + 1, r = n - 1;
-    while (l < r)
-    {
-        int mid = l + r >> 1;
-        if (dot(p[(mid + 1) % n], z) >= dot(p[mid], z))
-            l = mid + 1;
-        else
-            r = mid;
-    }
-    l %= n;
-    if (dot(p[l], z) > ans)
-        ans = dot(p[l], z), id = l;
-    return id;
-}
+int extreme_vertex(vector<PT> &p, const PT &z, const int top){ // O(log n)
+int n = p.size();if (n == 1)return 0;
+double ans = dot(p[0], z);int id = 0;
+if (dot(p[top], z) > ans)ans = dot(p[top], z), id = top;
+int l = 1, r = top - 1;
+while (l < r){int mid = l + r >> 1;
+if (dot(p[mid + 1], z) >= dot(p[mid], z))l = mid + 1;
+else r = mid;}
+if (dot(p[l], z) > ans)ans = dot(p[l], z), id = l;l = top + 1, r = n - 1;while (l < r){
+int mid = l + r >> 1;if (dot(p[(mid + 1) % n], z) >= dot(p[mid], z))l = mid + 1;elser = mid;}l %= n;
+if (dot(p[l], z) > ans)ans = dot(p[l], z), id = l;return id;}
 // maximum distance from any point on the perimeter to another point on the perimeter
-double diameter(vector<PT> &p)
-{
-    int n = (int)p.size();
-    if (n == 1)
-        return 0;
-    if (n == 2)
-        return dist(p[0], p[1]);
-    double ans = 0;
-    int i = 0, j = 1;
-    while (i < n)
-    {
-        while (cross(p[(i + 1) % n] - p[i], p[(j + 1) % n] - p[j]) >= 0)
-        {
-            ans = max(ans, dist2(p[i], p[j]));
-            j = (j + 1) % n;
-        }
-        ans = max(ans, dist2(p[i], p[j]));
-        i++;
-    }
-    return sqrt(ans);
-}
+double diameter(vector<PT> &p){int n = (int)p.size();if (n == 1)return 0;if (n == 2)return dist(p[0], p[1]);double ans = 0;int i = 0, j = 1;
+while (i < n){
+while (cross(p[(i + 1) % n] - p[i], p[(j + 1) % n] - p[j]) >= 0){ans = max(ans, dist2(p[i], p[j]));j = (j + 1) % n;}
+ans = max(ans, dist2(p[i], p[j]));i++;}return sqrt(ans);}
 // minimum distance between two parallel lines (non necessarily axis parallel)
 // such that the polygon can be put between the lines
-double width(vector<PT> &p)
-{
-    int n = (int)p.size();
-    if (n <= 2)
-        return 0;
-    double ans = inf;
-    int i = 0, j = 1;
-    while (i < n)
-    {
-        while (cross(p[(i + 1) % n] - p[i], p[(j + 1) % n] - p[j]) >= 0)
-            j = (j + 1) % n;
-        ans = min(ans, dist_from_point_to_line(p[i], p[(i + 1) % n], p[j]));
-        i++;
-    }
-    return ans;
-}
+double width(vector<PT> &p){int n = (int)p.size();if (n <= 2)return 0;double ans = inf;int i = 0, j = 1;while (i < n){
+while (cross(p[(i + 1) % n] - p[i], p[(j + 1) % n] - p[j]) >= 0)j = (j + 1) % n;ans = min(ans, dist_from_point_to_line(p[i], p[(i + 1) % n], p[j]));i++;}return ans;}
 // minimum perimeter
-double minimum_enclosing_rectangle(vector<PT> &p)
-{
-    int n = p.size();
-    if (n <= 2)
-        return perimeter(p);
-    int mndot = 0;
-    double tmp = dot(p[1] - p[0], p[0]);
-    for (int i = 1; i < n; i++)
-    {
-        if (dot(p[1] - p[0], p[i]) <= tmp)
-        {
-            tmp = dot(p[1] - p[0], p[i]);
-            mndot = i;
-        }
-    }
-    double ans = inf;
-    int i = 0, j = 1, mxdot = 1;
-    while (i < n)
-    {
-        PT cur = p[(i + 1) % n] - p[i];
-        while (cross(cur, p[(j + 1) % n] - p[j]) >= 0)
-            j = (j + 1) % n;
-        while (dot(p[(mxdot + 1) % n], cur) >= dot(p[mxdot], cur))
-            mxdot = (mxdot + 1) % n;
-        while (dot(p[(mndot + 1) % n], cur) <= dot(p[mndot], cur))
-            mndot = (mndot + 1) % n;
-        ans = min(ans, 2.0 * ((dot(p[mxdot], cur) / cur.norm() - dot(p[mndot], cur) / cur.norm()) + dist_from_point_to_line(p[i], p[(i + 1) % n], p[j])));
-        i++;
-    }
-    return ans;
-}
+double minimum_enclosing_rectangle(vector<PT> &p){int n = p.size();
+if (n <= 2)return perimeter(p);int mndot = 0;double tmp = dot(p[1] - p[0], p[0]);
+for (int i = 1; i < n; i++){if (dot(p[1] - p[0], p[i]) <= tmp){tmp = dot(p[1] - p[0], p[i]);mndot = i;}}
+double ans = inf;int i = 0, j = 1, mxdot = 1;
+while (i < n){PT cur = p[(i + 1) % n] - p[i];while (cross(cur, p[(j + 1) % n] - p[j]) >= 0)j = (j + 1) % n;while (dot(p[(mxdot + 1) % n], cur) >= dot(p[mxdot], cur))mxdot = (mxdot + 1) % n;
+while (dot(p[(mndot + 1) % n], cur) <= dot(p[mndot], cur))mndot = (mndot + 1) % n;ans = min(ans, 2.0 * ((dot(p[mxdot], cur) / cur.norm() - dot(p[mndot], cur) / cur.norm()) + dist_from_point_to_line(p[i], p[(i + 1) % n], p[j])));i++;}return ans;}
 // given n points, find the minimum enclosing circle of the points
 // call convex_hull() before this for faster solution
 // expected O(n)
-circle minimum_enclosing_circle(vector<PT> &p)
-{
-    random_shuffle(p.begin(), p.end());
-    int n = p.size();
-    circle c(p[0], 0);
-    for (int i = 1; i < n; i++)
-    {
-        if (sign(dist(c.p, p[i]) - c.r) > 0)
-        {
-            c = circle(p[i], 0);
-            for (int j = 0; j < i; j++)
-            {
-                if (sign(dist(c.p, p[j]) - c.r) > 0)
-                {
-                    c = circle((p[i] + p[j]) / 2, dist(p[i], p[j]) / 2);
-                    for (int k = 0; k < j; k++)
-                    {
-                        if (sign(dist(c.p, p[k]) - c.r) > 0)
-                        {
-                            c = circle(p[i], p[j], p[k]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return c;
-}
+circle minimum_enclosing_circle(vector<PT> &p){random_shuffle(p.begin(), p.end());int n = p.size();circle c(p[0], 0);
+for (int i = 1; i < n; i++){if (sign(dist(c.p, p[i]) - c.r) > 0){c = circle(p[i], 0);
+for (int j = 0; j < i; j++){
+if (sign(dist(c.p, p[j]) - c.r) > 0){
+c = circle((p[i] + p[j]) / 2, dist(p[i], p[j]) / 2);
+for (int k = 0; k < j; k++){if (sign(dist(c.p, p[k]) - c.r) > 0){c = circle(p[i], p[j], p[k]);}}}}}}return c;}
 // returns a vector with the vertices of a polygon with everything
 // to the left of the line going from a to b cut away.
-vector<PT> cut(vector<PT> &p, PT a, PT b)
-{
-    vector<PT> ans;
-    int n = (int)p.size();
-    for (int i = 0; i < n; i++)
-    {
-        double c1 = cross(b - a, p[i] - a);
-        double c2 = cross(b - a, p[(i + 1) % n] - a);
-        if (sign(c1) >= 0)
-            ans.push_back(p[i]);
-        if (sign(c1 * c2) < 0)
-        {
-            if (!is_parallel(p[i], p[(i + 1) % n], a, b))
-            {
-                PT tmp;
-                line_line_intersection(p[i], p[(i + 1) % n], a, b, tmp);
-                ans.push_back(tmp);
-            }
-        }
-    }
-    return ans;
-}
+vector<PT> cut(vector<PT> &p, PT a, PT b){vector<PT> ans;int n = (int)p.size();
+for (int i = 0; i < n; i++){double c1 = cross(b - a, p[i] - a);double c2 = cross(b - a, p[(i + 1) % n] - a);
+if (sign(c1) >= 0)ans.push_back(p[i]);if (sign(c1 * c2) < 0){if (!is_parallel(p[i], p[(i + 1) % n], a, b)){PT tmp;line_line_intersection(p[i], p[(i + 1) % n], a, b, tmp);ans.push_back(tmp);}}}return ans;}
 // not necessarily convex, boundary is included in the intersection
 // returns total intersected length
 // it returns the sum of the lengths of the portions of the line that are inside the polygon
-double polygon_line_intersection(vector<PT> p, PT a, PT b)
-{
-    int n = p.size();
-    p.push_back(p[0]);
-    line l = line(a, b);
-    double ans = 0.0;
-    vector<pair<double, int>> vec;
-    for (int i = 0; i < n; i++)
-    {
-        int s1 = orientation(a, b, p[i]);
-        int s2 = orientation(a, b, p[i + 1]);
-        if (s1 == s2)
-            continue;
-        line t = line(p[i], p[i + 1]);
-        PT inter = (t.v * l.c - l.v * t.c) / cross(l.v, t.v);
-        double tmp = dot(inter, l.v);
-        int f;
-        if (s1 > s2)
-            f = s1 && s2 ? 2 : 1;
-        else
-            f = s1 && s2 ? -2 : -1;
-        vec.push_back(make_pair((f > 0 ? tmp - eps : tmp + eps), f)); // keep eps very small like 1e-12
-    }
-    sort(vec.begin(), vec.end());
-    for (int i = 0, j = 0; i + 1 < (int)vec.size(); i++)
-    {
-        j += vec[i].second;
-        if (j)
-            ans += vec[i + 1].first - vec[i].first; // if this portion is inside the polygon
-        // else ans = 0; // if we want the maximum intersected length which is totally inside the polygon, uncomment this and take the maximum of ans
-    }
-    ans = ans / sqrt(dot(l.v, l.v));
-    p.pop_back();
-    return ans;
-}
+double polygon_line_intersection(vector<PT> p, PT a, PT b){
+int n = p.size();p.push_back(p[0]);line l = line(a, b);double ans = 0.0;vector<pair<double, int>> vec;for (int i = 0; i < n; i++){int s1 = orientation(a, b, p[i]);int s2 = orientation(a, b, p[i + 1]);
+if (s1 == s2)continue;line t = line(p[i], p[i + 1]);PT inter = (t.v * l.c - l.v * t.c) / cross(l.v, t.v);double tmp = dot(inter, l.v);int f;
+if (s1 > s2)f = s1 && s2 ? 2 : 1;
+else f = s1 && s2 ? -2 : -1;vec.push_back(make_pair((f > 0 ? tmp - eps : tmp + eps), f)); // keep eps very small like 1e-12}
+sort(vec.begin(), vec.end());for (int i = 0, j = 0; i + 1 < (int)vec.size(); i++){j += vec[i].second;
+if (j)ans += vec[i + 1].first - vec[i].first; // if this portion is inside the polygon// else ans = 0; // if we want the maximum intersected length which is totally inside the polygon, uncomment this and take the maximum of ans}
+ans = ans / sqrt(dot(l.v, l.v));p.pop_back();return ans;}
 // given a convex polygon p, and a line ab and the top vertex of the polygon
 // returns the intersection of the line with the polygon
 // it returns the indices of the edges of the polygon that are intersected by the line
 // so if it returns i, then the line intersects the edge (p[i], p[(i + 1) % n])
-array<int, 2> convex_line_intersection(vector<PT> &p, PT a, PT b, int top)
-{
-    int end_a = extreme_vertex(p, (a - b).perp(), top);
-    int end_b = extreme_vertex(p, (b - a).perp(), top);
-    auto cmp_l = [&](int i)
-    { return orientation(a, p[i], b); };
-    if (cmp_l(end_a) < 0 || cmp_l(end_b) > 0)
-        return {-1, -1}; // no intersection
-    array<int, 2> res;
-    for (int i = 0; i < 2; i++)
-    {
-        int lo = end_b, hi = end_a, n = p.size();
-        while ((lo + 1) % n != hi)
-        {
-            int m = ((lo + hi + (lo < hi ? 0 : n)) / 2) % n;
-            (cmp_l(m) == cmp_l(end_b) ? lo : hi) = m;
-        }
-        res[i] = (lo + !cmp_l(hi)) % n;
-        swap(end_a, end_b);
-    }
-    if (res[0] == res[1])
-        return {res[0], -1}; // touches the vertex res[0]
-    if (!cmp_l(res[0]) && !cmp_l(res[1]))
-        switch ((res[0] - res[1] + (int)p.size() + 1) % p.size())
-        {
-        case 0:
-            return {res[0], res[0]}; // touches the edge (res[0], res[0] + 1)
-        case 2:
-            return {res[1], res[1]}; // touches the edge (res[1], res[1] + 1)
-        }
-    return res; // intersects the edges (res[0], res[0] + 1) and (res[1], res[1] + 1)
-}
+array<int, 2> convex_line_intersection(vector<PT> &p, PT a, PT b, int top){int end_a = extreme_vertex(p, (a - b).perp(), top);int end_b = extreme_vertex(p, (b - a).perp(), top);
+auto cmp_l = [&](int i){ return orientation(a, p[i], b); };if (cmp_l(end_a) < 0 || cmp_l(end_b) > 0)return {-1, -1}; // no intersectionarray<int, 2> res;for (int i = 0; i < 2; i++){int lo = end_b, hi = end_a, n = p.size();
+while ((lo + 1) % n != hi){int m = ((lo + hi + (lo < hi ? 0 : n)) / 2) % n;(cmp_l(m) == cmp_l(end_b) ? lo : hi) = m;}res[i] = (lo + !cmp_l(hi)) % n;
+swap(end_a, end_b);}
+if (res[0] == res[1])return {res[0], -1}; // touches the vertex res[0]if (!cmp_l(res[0]) && !cmp_l(res[1]))
+switch ((res[0] - res[1] + (int)p.size() + 1) % p.size()){case 0:return {res[0], res[0]}; // touches the edge (res[0], res[0] + 1)case 2:return {res[1], res[1]}; // touches the edge (res[1], res[1] + 1)}
+return res; // intersects the edges (res[0], res[0] + 1) and (res[1], res[1] + 1)}
 
-pair<PT, int> point_poly_tangent(vector<PT> &p, PT Q, int dir, int l, int r)
-{
-    while (r - l > 1)
-    {
-        int mid = (l + r) >> 1;
-        bool pvs = orientation(Q, p[mid], p[mid - 1]) != -dir;
-        bool nxt = orientation(Q, p[mid], p[mid + 1]) != -dir;
-        if (pvs && nxt)
-            return {p[mid], mid};
-        if (!(pvs || nxt))
-        {
-            auto p1 = point_poly_tangent(p, Q, dir, mid + 1, r);
-            auto p2 = point_poly_tangent(p, Q, dir, l, mid - 1);
-            return orientation(Q, p1.first, p2.first) == dir ? p1 : p2;
-        }
-        if (!pvs)
-        {
-            if (orientation(Q, p[mid], p[l]) == dir)
-                r = mid - 1;
-            else if (orientation(Q, p[l], p[r]) == dir)
-                r = mid - 1;
-            else
-                l = mid + 1;
-        }
-        if (!nxt)
-        {
-            if (orientation(Q, p[mid], p[l]) == dir)
-                l = mid + 1;
-            else if (orientation(Q, p[l], p[r]) == dir)
-                r = mid - 1;
-            else
-                l = mid + 1;
-        }
-    }
-    pair<PT, int> ret = {p[l], l};
-    for (int i = l + 1; i <= r; i++)
-        ret = orientation(Q, ret.first, p[i]) != dir ? make_pair(p[i], i) : ret;
-    return ret;
-}
+pair<PT, int> point_poly_tangent(vector<PT> &p, PT Q, int dir, int l, int r){
+while (r - l > 1){int mid = (l + r) >> 1;bool pvs = orientation(Q, p[mid], p[mid - 1]) != -dir;
+bool nxt = orientation(Q, p[mid], p[mid + 1]) != -dir;
+if (pvs && nxt)return {p[mid], mid};
+if (!(pvs || nxt)){auto p1 = point_poly_tangent(p, Q, dir, mid + 1, r);
+auto p2 = point_poly_tangent(p, Q, dir, l, mid - 1);
+return orientation(Q, p1.first, p2.first) == dir ? p1 : p2;}
+if (!pvs){if (orientation(Q, p[mid], p[l]) == dir)r = mid - 1;
+else if (orientation(Q, p[l], p[r]) == dir)r = mid - 1;elsel = mid + 1;}
+if (!nxt){if (orientation(Q, p[mid], p[l]) == dir)l = mid + 1;
+else if (orientation(Q, p[l], p[r]) == dir)r = mid - 1;
+else l = mid + 1;}}
+pair<PT, int> ret = {p[l], l};
+for (int i = l + 1; i <= r; i++)ret = orientation(Q, ret.first, p[i]) != dir ? make_pair(p[i], i) : ret;
+return ret;}
 // (ccw, cw) tangents from a point that is outside this convex polygon
 // returns indexes of the points
 // ccw means the tangent from Q to that point is in the same direction as the polygon ccw direction
-pair<int, int> tangents_from_point_to_polygon(vector<PT> &p, PT Q)
-{
-    int ccw = point_poly_tangent(p, Q, 1, 0, (int)p.size() - 1).second;
-    int cw = point_poly_tangent(p, Q, -1, 0, (int)p.size() - 1).second;
-    return make_pair(ccw, cw);
-}
-
+pair<int, int> tangents_from_point_to_polygon(vector<PT> &p, PT Q){int ccw = point_poly_tangent(p, Q, 1, 0, (int)p.size() - 1).second;int cw = point_poly_tangent(p, Q, -1, 0, (int)p.size() - 1).second;return make_pair(ccw, cw);}
 // minimum distance from a point to a convex polygon
 // it assumes point lie strictly outside the polygon
-double dist_from_point_to_polygon(vector<PT> &p, PT z)
-{
-    double ans = inf;
-    int n = p.size();
-    if (n <= 3)
-    {
-        for (int i = 0; i < n; i++)
-            ans = min(ans, dist_from_point_to_seg(p[i], p[(i + 1) % n], z));
-        return ans;
-    }
-    auto [r, l] = tangents_from_point_to_polygon(p, z);
-    if (l > r)
-        r += n;
-    while (l < r)
-    {
-        int mid = (l + r) >> 1;
-        double left = dist2(p[mid % n], z), right = dist2(p[(mid + 1) % n], z);
-        ans = min({ans, left, right});
-        if (left < right)
-            r = mid;
-        else
-            l = mid + 1;
-    }
-    ans = sqrt(ans);
-    ans = min(ans, dist_from_point_to_seg(p[l % n], p[(l + 1) % n], z));
-    ans = min(ans, dist_from_point_to_seg(p[l % n], p[(l - 1 + n) % n], z));
-    return ans;
-}
+double dist_from_point_to_polygon(vector<PT> &p, PT z){double ans = inf;int n = p.size();if (n <= 3){for (int i = 0; i < n; i++)ans = min(ans, dist_from_point_to_seg(p[i], p[(i + 1) % n], z));return ans;}
+auto [r, l] = tangents_from_point_to_polygon(p, z);if (l > r)r += n;
+while (l < r){int mid = (l + r) >> 1;double left = dist2(p[mid % n], z), right = dist2(p[(mid + 1) % n], z);ans = min({ans, left, right});if (left < right)r = mid;elsel = mid + 1;}
+ans = sqrt(ans);ans = min(ans, dist_from_point_to_seg(p[l % n], p[(l + 1) % n], z));ans = min(ans, dist_from_point_to_seg(p[l % n], p[(l - 1 + n) % n], z));return ans;}
 // minimum distance from convex polygon p to line ab
 // returns 0 is it intersects with the polygon
 // top - upper right vertex
-double dist_from_polygon_to_line(vector<PT> &p, PT a, PT b, int top)
-{ // O(log n)
-    PT orth = (b - a).perp();
-    if (orientation(a, b, p[0]) > 0)
-        orth = (a - b).perp();
-    int id = extreme_vertex(p, orth, top);
-    if (dot(p[id] - a, orth) > 0)
-        return 0.0;                              // if orth and a are in the same half of the line, then poly and line intersects
-    return dist_from_point_to_line(a, b, p[id]); // does not intersect
-}
+double dist_from_polygon_to_line(vector<PT> &p, PT a, PT b, int top){ // O(log n)
+PT orth = (b - a).perp();
+if (orientation(a, b, p[0]) > 0)orth = (a - b).perp();
+int id = extreme_vertex(p, orth, top);if (dot(p[id] - a, orth) > 0)return 0.0;// if orth and a are in the same half of the line, then poly and line intersects
+return dist_from_point_to_line(a, b, p[id]); // does not intersect}
 // minimum distance from a convex polygon to another convex polygon
 // the polygon doesnot overlap or touch
 // tested in https://toph.co/p/the-wall

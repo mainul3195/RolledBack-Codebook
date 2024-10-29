@@ -415,343 +415,99 @@ return dist_from_point_to_line(a, b, p[id]); // does not intersect}
 // minimum distance from a convex polygon to another convex polygon
 // the polygon doesnot overlap or touch
 // tested in https://toph.co/p/the-wall
-double dist_from_polygon_to_polygon(vector<PT> &p1, vector<PT> &p2)
-{ // O(n log n)
-    double ans = inf;
-    for (int i = 0; i < p1.size(); i++)
-    {
-        ans = min(ans, dist_from_point_to_polygon(p2, p1[i]));
-    }
-    for (int i = 0; i < p2.size(); i++)
-    {
-        ans = min(ans, dist_from_point_to_polygon(p1, p2[i]));
-    }
-    return ans;
-}
+double dist_from_polygon_to_polygon(vector<PT> &p1, vector<PT> &p2){ // O(n log n)
+double ans = inf;
+for (int i = 0; i < p1.size(); i++){ans = min(ans, dist_from_point_to_polygon(p2, p1[i]));}
+for (int i = 0; i < p2.size(); i++){ans = min(ans, dist_from_point_to_polygon(p1, p2[i]));}
+return ans;}
 // maximum distance from a convex polygon to another convex polygon
-double maximum_dist_from_polygon_to_polygon(vector<PT> &u, vector<PT> &v)
-{ // O(n)
-    int n = (int)u.size(), m = (int)v.size();
-    double ans = 0;
-    if (n < 3 || m < 3)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < m; j++)
-                ans = max(ans, dist2(u[i], v[j]));
-        }
-        return sqrt(ans);
-    }
-    if (u[0].x > v[0].x)
-        swap(n, m), swap(u, v);
-    int i = 0, j = 0, step = n + m + 10;
-    while (j + 1 < m && v[j].x < v[j + 1].x)
-        j++;
-    while (step--)
-    {
-        if (cross(u[(i + 1) % n] - u[i], v[(j + 1) % m] - v[j]) >= 0)
-            j = (j + 1) % m;
-        else
-            i = (i + 1) % n;
-        ans = max(ans, dist2(u[i], v[j]));
-    }
-    return sqrt(ans);
-}
+double maximum_dist_from_polygon_to_polygon(vector<PT> &u, vector<PT> &v){ // O(n)
+int n = (int)u.size(), m = (int)v.size();double ans = 0;
+if (n < 3 || m < 3){
+for (int i = 0; i < n; i++){
+for (int j = 0; j < m; j++)ans = max(ans, dist2(u[i], v[j]));}return sqrt(ans);}
+if (u[0].x > v[0].x)swap(n, m), swap(u, v);int i = 0, j = 0, step = n + m + 10;
+while (j + 1 < m && v[j].x < v[j + 1].x)j++;
+while (step--){if (cross(u[(i + 1) % n] - u[i], v[(j + 1) % m] - v[j]) >= 0)j = (j + 1) % m;elsei = (i + 1) % n;ans = max(ans, dist2(u[i], v[j]));}
+return sqrt(ans);}
 
 // calculates the area of the union of n polygons (not necessarily convex).
 // the points within each polygon must be given in CCW order.
 // complexity: O(N^2), where N is the total number of points
-double rat(PT a, PT b, PT p)
-{
-    return !sign(a.x - b.x) ? (p.y - a.y) / (b.y - a.y) : (p.x - a.x) / (b.x - a.x);
-};
-double polygon_union(vector<vector<PT>> &p)
-{
-    int n = p.size();
-    double ans = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        for (int v = 0; v < (int)p[i].size(); ++v)
-        {
-            PT a = p[i][v], b = p[i][(v + 1) % p[i].size()];
-            vector<pair<double, int>> segs;
-            segs.emplace_back(0, 0), segs.emplace_back(1, 0);
-            for (int j = 0; j < n; ++j)
-            {
-                if (i != j)
-                {
-                    for (size_t u = 0; u < p[j].size(); ++u)
-                    {
-                        PT c = p[j][u], d = p[j][(u + 1) % p[j].size()];
-                        int sc = sign(cross(b - a, c - a)), sd = sign(cross(b - a, d - a));
-                        if (!sc && !sd)
-                        {
-                            if (sign(dot(b - a, d - c)) > 0 && i > j)
-                            {
-                                segs.emplace_back(rat(a, b, c), 1), segs.emplace_back(rat(a, b, d), -1);
-                            }
-                        }
-                        else
-                        {
-                            double sa = cross(d - c, a - c), sb = cross(d - c, b - c);
-                            if (sc >= 0 && sd < 0)
-                                segs.emplace_back(sa / (sa - sb), 1);
-                            else if (sc < 0 && sd >= 0)
-                                segs.emplace_back(sa / (sa - sb), -1);
-                        }
-                    }
-                }
-            }
-            sort(segs.begin(), segs.end());
-            double pre = min(max(segs[0].first, 0.0), 1.0), now, sum = 0;
-            int cnt = segs[0].second;
-            for (int j = 1; j < segs.size(); ++j)
-            {
-                now = min(max(segs[j].first, 0.0), 1.0);
-                if (!cnt)
-                    sum += now - pre;
-                cnt += segs[j].second;
-                pre = now;
-            }
-            ans += cross(a, b) * sum;
-        }
-    }
-    return ans * 0.5;
-}
+double rat(PT a, PT b, PT p){return !sign(a.x - b.x) ? (p.y - a.y) / (b.y - a.y) : (p.x - a.x) / (b.x - a.x);};
+double polygon_union(vector<vector<PT>> &p){
+int n = p.size();double ans = 0;
+for (int i = 0; i < n; ++i){
+for (int v = 0; v < (int)p[i].size(); ++v){
+PT a = p[i][v], b = p[i][(v + 1) % p[i].size()];vector<pair<double, int>> segs;segs.emplace_back(0, 0), segs.emplace_back(1, 0);
+for (int j = 0; j < n; ++j){
+if (i != j){for (size_t u = 0; u < p[j].size(); ++u){
+PT c = p[j][u], d = p[j][(u + 1) % p[j].size()];int sc = sign(cross(b - a, c - a)), sd = sign(cross(b - a, d - a));if (!sc && !sd){
+if (sign(dot(b - a, d - c)) > 0 && i > j){segs.emplace_back(rat(a, b, c), 1), segs.emplace_back(rat(a, b, d), -1);}}else{
+double sa = cross(d - c, a - c), sb = cross(d - c, b - c);
+if (sc >= 0 && sd < 0)segs.emplace_back(sa / (sa - sb), 1); else if (sc < 0 && sd >= 0)segs.emplace_back(sa / (sa - sb), -1);}}}}
+sort(segs.begin(), segs.end());double pre = min(max(segs[0].first, 0.0), 1.0), now, sum = 0;int cnt = segs[0].second;
+for (int j = 1; j < segs.size(); ++j){now = min(max(segs[j].first, 0.0), 1.0);if (!cnt)sum += now - pre;cnt += segs[j].second;pre = now;}ans += cross(a, b) * sum;}}return ans * 0.5;}
 // contains all points p such that: cross(b - a, p - a) >= 0
-struct HP
-{
-    PT a, b;
-    HP() {}
-    HP(PT a, PT b) : a(a), b(b) {}
-    HP(const HP &rhs) : a(rhs.a), b(rhs.b) {}
-    int operator<(const HP &rhs) const
-    {
-        PT p = b - a;
-        PT q = rhs.b - rhs.a;
-        int fp = (p.y < 0 || (p.y == 0 && p.x < 0));
-        int fq = (q.y < 0 || (q.y == 0 && q.x < 0));
-        if (fp != fq)
-            return fp == 0;
-        if (cross(p, q))
-            return cross(p, q) > 0;
-        return cross(p, rhs.b - a) < 0;
-    }
-    PT line_line_intersection(PT a, PT b, PT c, PT d)
-    {
-        b = b - a;
-        d = c - d;
-        c = c - a;
-        return a + b * cross(c, d) / cross(b, d);
-    }
-    PT intersection(const HP &v)
-    {
-        return line_line_intersection(a, b, v.a, v.b);
-    }
-};
-int check(HP a, HP b, HP c)
-{
-    return cross(a.b - a.a, b.intersection(c) - a.a) > -eps; //-eps to include polygons of zero area (straight lines, points)
-}
+struct HP{PT a, b;HP() {}HP(PT a, PT b) : a(a), b(b) {}HP(const HP &rhs) : a(rhs.a), b(rhs.b) {}
+int operator<(const HP &rhs) const{PT p = b - a;PT q = rhs.b - rhs.a;
+int fp = (p.y < 0 || (p.y == 0 && p.x < 0));int fq = (q.y < 0 || (q.y == 0 && q.x < 0));
+if (fp != fq)return fp == 0;if (cross(p, q))return cross(p, q) > 0;return cross(p, rhs.b - a) < 0;}PT line_line_intersection(PT a, PT b, PT c, PT d)
+{b = b - a;d = c - d;c = c - a;return a + b * cross(c, d) / cross(b, d);}
+PT intersection(const HP &v){return line_line_intersection(a, b, v.a, v.b);}};
+int check(HP a, HP b, HP c){return cross(a.b - a.a, b.intersection(c) - a.a) > -eps; //-eps to include polygons of zero area (straight lines, points)}
 // consider half-plane of counter-clockwise side of each line
 // if lines are not bounded add infinity rectangle
 // returns a convex polygon, a point can occur multiple times though
 // complexity: O(n log(n))
-vector<PT> half_plane_intersection(vector<HP> h)
-{
-    sort(h.begin(), h.end());
-    vector<HP> tmp;
-    for (int i = 0; i < h.size(); i++)
-    {
-        if (!i || cross(h[i].b - h[i].a, h[i - 1].b - h[i - 1].a))
-        {
-            tmp.push_back(h[i]);
-        }
-    }
-    h = tmp;
-    vector<HP> q(h.size() + 10);
-    int qh = 0, qe = 0;
-    for (int i = 0; i < h.size(); i++)
-    {
-        while (qe - qh > 1 && !check(h[i], q[qe - 2], q[qe - 1]))
-            qe--;
-        while (qe - qh > 1 && !check(h[i], q[qh], q[qh + 1]))
-            qh++;
-        q[qe++] = h[i];
-    }
-    while (qe - qh > 2 && !check(q[qh], q[qe - 2], q[qe - 1]))
-        qe--;
-    while (qe - qh > 2 && !check(q[qe - 1], q[qh], q[qh + 1]))
-        qh++;
-    vector<HP> res;
-    for (int i = qh; i < qe; i++)
-        res.push_back(q[i]);
-    vector<PT> hull;
-    if (res.size() > 2)
-    {
-        for (int i = 0; i < res.size(); i++)
-        {
-            hull.push_back(res[i].intersection(res[(i + 1) % ((int)res.size())]));
-        }
-    }
-    return hull;
-}
+vector<PT> half_plane_intersection(vector<HP> h){sort(h.begin(), h.end());vector<HP> tmp;
+for (int i = 0; i < h.size(); i++){if (!i || cross(h[i].b - h[i].a, h[i - 1].b - h[i - 1].a)){tmp.push_back(h[i]);}}
+h = tmp;vector<HP> q(h.size() + 10);int qh = 0, qe = 0;
+for (int i = 0; i < h.size(); i++){
+while (qe - qh > 1 && !check(h[i], q[qe - 2], q[qe - 1]))qe--;
+while (qe - qh > 1 && !check(h[i], q[qh], q[qh + 1]))qh++;q[qe++] = h[i];}
+while (qe - qh > 2 && !check(q[qh], q[qe - 2], q[qe - 1]))qe--;
+while (qe - qh > 2 && !check(q[qe - 1], q[qh], q[qh + 1]))qh++;
+vector<HP> res;
+for (int i = qh; i < qe; i++)res.push_back(q[i]);vector<PT> hull;
+if (res.size() > 2){for (int i = 0; i < res.size(); i++){hull.push_back(res[i].intersection(res[(i + 1) % ((int)res.size())]));}}
+return hull;}
 // rotate the polygon such that the (bottom, left)-most point is at the first position
-void reorder_polygon(vector<PT> &p)
-{
-    int pos = 0;
-    for (int i = 1; i < p.size(); i++)
-    {
-        if (p[i].y < p[pos].y || (sign(p[i].y - p[pos].y) == 0 && p[i].x < p[pos].x))
-            pos = i;
-    }
-    rotate(p.begin(), p.begin() + pos, p.end());
-}
+void reorder_polygon(vector<PT> &p){int pos = 0;for (int i = 1; i < p.size(); i++){if (p[i].y < p[pos].y || (sign(p[i].y - p[pos].y) == 0 && p[i].x < p[pos].x))pos = i;}rotate(p.begin(), p.begin() + pos, p.end());}
 // a and b are convex polygons
 // returns a convex hull of their minkowski sum
 // min(a.size(), b.size()) >= 2
 // https://cp-algorithms.com/geometry/minkowski.html
-vector<PT> minkowski_sum(vector<PT> a, vector<PT> b)
-{
-    reorder_polygon(a);
-    reorder_polygon(b);
-    int n = a.size(), m = b.size();
-    int i = 0, j = 0;
-    a.push_back(a[0]);
-    a.push_back(a[1]);
-    b.push_back(b[0]);
-    b.push_back(b[1]);
-    vector<PT> c;
-    while (i < n || j < m)
-    {
-        c.push_back(a[i] + b[j]);
-        double p = cross(a[i + 1] - a[i], b[j + 1] - b[j]);
-        if (sign(p) >= 0)
-            ++i;
-        if (sign(p) <= 0)
-            ++j;
-    }
-    return c;
-}
+vector<PT> minkowski_sum(vector<PT> a, vector<PT> b){
+reorder_polygon(a);reorder_polygon(b);
+int n = a.size(), m = b.size();int i = 0, j = 0;a.push_back(a[0]);a.push_back(a[1]);b.push_back(b[0]);b.push_back(b[1]);vector<PT> c;
+while (i < n || j < m){c.push_back(a[i] + b[j]);double p = cross(a[i + 1] - a[i], b[j + 1] - b[j]);if (sign(p) >= 0)++i;if (sign(p) <= 0)++j;}
+return c;}
 // returns the area of the intersection of the circle with center c and radius r
 // and the triangle formed by the points c, a, b
-double _triangle_circle_intersection(PT c, double r, PT a, PT b)
-{
-    double sd1 = dist2(c, a), sd2 = dist2(c, b);
-    if (sd1 > sd2)
-        swap(a, b), swap(sd1, sd2);
-    double sd = dist2(a, b);
-    double d1 = sqrtl(sd1), d2 = sqrtl(sd2), d = sqrt(sd);
-    double x = abs(sd2 - sd - sd1) / (2 * d);
-    double h = sqrtl(sd1 - x * x);
-    if (r >= d2)
-        return h * d / 2;
-    double area = 0;
-    if (sd + sd1 < sd2)
-    {
-        if (r < d1)
-            area = r * r * (acos(h / d2) - acos(h / d1)) / 2;
-        else
-        {
-            area = r * r * (acos(h / d2) - acos(h / r)) / 2;
-            double y = sqrtl(r * r - h * h);
-            area += h * (y - x) / 2;
-        }
-    }
-    else
-    {
-        if (r < h)
-            area = r * r * (acos(h / d2) + acos(h / d1)) / 2;
-        else
-        {
-            area += r * r * (acos(h / d2) - acos(h / r)) / 2;
-            double y = sqrtl(r * r - h * h);
-            area += h * y / 2;
-            if (r < d1)
-            {
-                area += r * r * (acos(h / d1) - acos(h / r)) / 2;
-                area += h * y / 2;
-            }
-            else
-                area += h * x / 2;
-        }
-    }
-    return area;
-}
+double _triangle_circle_intersection(PT c, double r, PT a, PT b){
+double sd1 = dist2(c, a), sd2 = dist2(c, b);
+if (sd1 > sd2)swap(a, b), swap(sd1, sd2);double sd = dist2(a, b);double d1 = sqrtl(sd1), d2 = sqrtl(sd2), d = sqrt(sd);double x = abs(sd2 - sd - sd1) / (2 * d);double h = sqrtl(sd1 - x * x);
+if (r >= d2)return h * d / 2;double area = 0;
+if (sd + sd1 < sd2){if (r < d1)area = r * r * (acos(h / d2) - acos(h / d1)) / 2;else{area = r * r * (acos(h / d2) - acos(h / r)) / 2;double y = sqrtl(r * r - h * h);area += h * (y - x) / 2;}}
+else{if (r < h)area = r * r * (acos(h / d2) + acos(h / d1)) / 2;else{area += r * r * (acos(h / d2) - acos(h / r)) / 2;double y = sqrtl(r * r - h * h);area += h * y / 2;if (r < d1){area += r * r * (acos(h / d1) - acos(h / r)) / 2;area += h * y / 2;}elsearea += h * x / 2;}}
+return area;}
 // intersection between a simple polygon and a circle
-double polygon_circle_intersection(vector<PT> &v, PT p, double r)
-{
-    int n = v.size();
-    double ans = 0.00;
-    PT org = {0, 0};
-    for (int i = 0; i < n; i++)
-    {
-        int x = orientation(p, v[i], v[(i + 1) % n]);
-        if (x == 0)
-            continue;
-        double area = _triangle_circle_intersection(org, r, v[i] - p, v[(i + 1) % n] - p);
-        if (x < 0)
-            ans -= area;
-        else
-            ans += area;
-    }
-    return abs(ans);
-}
+double polygon_circle_intersection(vector<PT> &v, PT p, double r){int n = v.size();double ans = 0.00;PT org = {0, 0};
+for (int i = 0; i < n; i++){int x = orientation(p, v[i], v[(i + 1) % n]);if (x == 0)continue;double area = _triangle_circle_intersection(org, r, v[i] - p, v[(i + 1) % n] - p);if (x < 0)ans -= area;elseans += area;}
+return abs(ans);}
 // find a circle of radius r that contains as many points as possible
 // O(n^2 log n);
-double maximum_circle_cover(vector<PT> p, double r, circle &c)
-{
-    int n = p.size();
-    int ans = 0;
-    int id = 0;
-    double th = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        // maximum circle cover when the circle goes through this point
-        vector<pair<double, int>> events = {{-PI, +1}, {PI, -1}};
-        for (int j = 0; j < n; ++j)
-        {
-            if (j == i)
-                continue;
-            double d = dist(p[i], p[j]);
-            if (d > r * 2)
-                continue;
-            double dir = (p[j] - p[i]).arg();
-            double ang = acos(d / 2 / r);
-            double st = dir - ang, ed = dir + ang;
-            if (st > PI)
-                st -= PI * 2;
-            if (st <= -PI)
-                st += PI * 2;
-            if (ed > PI)
-                ed -= PI * 2;
-            if (ed <= -PI)
-                ed += PI * 2;
-            events.push_back({st - eps, +1}); // take care of precisions!
-            events.push_back({ed, -1});
-            if (st > ed)
-            {
-                events.push_back({-PI, +1});
-                events.push_back({+PI, -1});
-            }
-        }
-        sort(events.begin(), events.end());
-        int cnt = 0;
-        for (auto &&e : events)
-        {
-            cnt += e.second;
-            if (cnt > ans)
-            {
-                ans = cnt;
-                id = i;
-                th = e.first;
-            }
-        }
-    }
-    PT w = PT(p[id].x + r * cos(th), p[id].y + r * sin(th));
-    c = circle(w, r); // best_circle
-    return ans;
-}
+double maximum_circle_cover(vector<PT> p, double r, circle &c){int n = p.size();int ans = 0;int id = 0;double th = 0;
+for (int i = 0; i < n; ++i){
+// maximum circle cover when the circle goes through this point
+vector<pair<double, int>> events = {{-PI, +1}, {PI, -1}};
+for (int j = 0; j < n; ++j){if (j == i)continue;double d = dist(p[i], p[j]);if (d > r * 2)continue;
+double dir = (p[j] - p[i]).arg();double ang = acos(d / 2 / r);double st = dir - ang, ed = dir + ang;
+if (st > PI)st -= PI * 2;if (st <= -PI)st += PI * 2;if (ed > PI)ed -= PI * 2;if (ed <= -PI)ed += PI * 2;
+events.push_back({st - eps, +1}); // take care of precisions!
+events.push_back({ed, -1});if (st > ed){events.push_back({-PI, +1});events.push_back({+PI, -1});}}sort(events.begin(), events.end());int cnt = 0;for (auto &&e : events){cnt += e.second;if (cnt > ans){ans = cnt;id = i;th = e.first;}}}PT w = PT(p[id].x + r * cos(th), p[id].y + r * sin(th));c = circle(w, r); // best_circle
+return ans;}
 // radius of the maximum inscribed circle in a convex polygon
 double maximum_inscribed_circle(vector<PT> p)
 {

@@ -36,7 +36,6 @@ ll MinQuery(ll x) {
 	for (int i = 32 ; i >= 0 ; i--) {
 		bool bit = x & (1LL << i);
 		if (Trie[start][bit]) {
-
 			ans = ans;
 		}
 		else {
@@ -46,5 +45,4 @@ ll MinQuery(ll x) {
 		start = Trie[start][bit];
 	}
 	return ans;
-
 }
